@@ -6,16 +6,7 @@ import {
   useCurrentFrame,
   useVideoConfig,
   Sequence,
-  Audio,
 } from "remotion";
-
-// Helper Dubbing Suara AI Indonesia
-const IndonesianVoice: React.FC<{ text: string }> = ({ text }) => {
-  const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=id&client=tw-ob&q=${encodeURIComponent(
-    text
-  )}`;
-  return <Audio src={ttsUrl} volume={1.2} />;
-};
 
 const useJitter = (frame: number) => {
   const step = Math.floor(frame / 3);
@@ -45,8 +36,6 @@ const Scene1 = () => {
         fontFamily: "'Impact', 'Arial Black', sans-serif",
       }}
     >
-      <IndonesianVoice text="Indonesia berduka, hutan tropis kita kini terancam terbakar." />
-
       <svg
         viewBox="0 0 1920 1080"
         style={{
@@ -130,8 +119,6 @@ const Scene2 = () => {
         fontFamily: "'Impact', 'Arial Black', sans-serif",
       }}
     >
-      <IndonesianVoice text="Darurat karhutla, api meluas membakar ribuan hektar lahan." />
-
       <div
         style={{
           position: "absolute",
@@ -203,8 +190,6 @@ const Scene3 = () => {
         fontFamily: "'Impact', 'Arial Black', sans-serif",
       }}
     >
-      <IndonesianVoice text="Kabut asap pekat menyelimuti permukiman, kualitas udara sangat berbahaya." />
-
       <div
         style={{
           backgroundColor: "#fff",
@@ -241,8 +226,6 @@ const Scene4 = () => {
         fontFamily: "'Impact', 'Arial Black', sans-serif",
       }}
     >
-      <IndonesianVoice text="Ekosistem hancur, ribuan satwa kehilangan rumah tinggal mereka." />
-
       <div
         style={{
           backgroundColor: "#292524",
@@ -262,7 +245,7 @@ const Scene4 = () => {
   );
 };
 
-// Scene 5: Detik 16 - 20 (Harapan & Cegah Karhutla)
+// Scene 5: Detik 16 - 20 (Harapan & Aksi Nyata)
 const Scene5 = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -280,8 +263,6 @@ const Scene5 = () => {
         fontFamily: "'Impact', 'Arial Black', sans-serif",
       }}
     >
-      <IndonesianVoice text="Karhutla mengancam kita semua. Mari cegah sebelum terlambat!" />
-
       <div
         style={{
           position: "absolute",
@@ -323,12 +304,6 @@ const Scene5 = () => {
 export const HelloWorld = () => {
   return (
     <AbsoluteFill>
-      {/* Background Music Sinematik Online Otomatis */}
-      <Audio
-        src="https://actions.google.com/sounds/v1/weather/fire_burning.ogg"
-        volume={0.35}
-      />
-
       <Sequence from={0} durationInFrames={120}>
         <Scene1 />
       </Sequence>
