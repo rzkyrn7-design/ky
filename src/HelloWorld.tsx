@@ -6,32 +6,33 @@ import {
   useCurrentFrame,
   useVideoConfig,
   Sequence,
+  Audio,
 } from "remotion";
 
-// Komponen Pembantu: Layer Kertas
-const PaperCard: React.FC<{
-  children: React.ReactNode;
-  style?: React.CSSProperties;
-}> = ({ children, style }) => (
-  <div
-    style={{
-      boxShadow: "0 14px 28px rgba(0,0,0,0.28), 0 10px 10px rgba(0,0,0,0.22)",
-      borderRadius: 16,
-      ...style,
-    }}
-  >
-    {children}
-  </div>
-);
+// Helper Dubbing Suara AI Indonesia
+const IndonesianVoice: React.FC<{ text: string }> = ({ text }) => {
+  const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=id&client=tw-ob&q=${encodeURIComponent(
+    text
+  )}`;
+  return <Audio src={ttsUrl} volume={1.2} />;
+};
 
-// SCENE 1: Hutan Tropis & Awal Api (Detik 0 - 4 | Frame 0 - 120)
+const useJitter = (frame: number) => {
+  const step = Math.floor(frame / 3);
+  const rot = ((step * 7) % 5) - 2.5;
+  const x = ((step * 11) % 4) - 2;
+  const y = ((step * 13) % 4) - 2;
+  return { rot, x, y };
+};
+
+// Scene 1: Detik 0 - 4 (Hutan & Awal Api)
 const Scene1 = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-
-  const titleEntry = spring({ frame, fps, config: { damping: 12 } });
-  const scale = interpolate(titleEntry, [0, 1], [0.8, 1]);
-  const fireGrowth = interpolate(frame, [60, 120], [0, 1.2], {
+  const jitter = useJitter(frame);
+  const intro = spring({ frame, fps, config: { damping: 12 } });
+  const scale = interpolate(intro, [0, 1], [0.85, 1]);
+  const fireScale = interpolate(frame, [45, 110], [0, 1.2], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -39,378 +40,307 @@ const Scene1 = () => {
   return (
     <AbsoluteFill
       style={{
-        backgroundColor: "#1b4332",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontFamily: "'Trebuchet MS', sans-serif",
+        backgroundColor: "#1b3a2b",
+        overflow: "hidden",
+        fontFamily: "'Impact', 'Arial Black', sans-serif",
       }}
     >
-      {/* Siluet Lapisan Pohon Kertas */}
+      <IndonesianVoice text="Indonesia berduka, hutan tropis kita kini terancam terbakar." />
+
+      <svg
+        viewBox="0 0 1920 1080"
+        style={{
+          position: "absolute",
+          width: "100%",
+          height: "100%",
+          filter: "drop-shadow(0px -10px 15px rgba(0,0,0,0.4))",
+        }}
+      >
+        <path d="M0,800 Q480,680 960,780 T1920,720 L1920,1080 L0,1080 Z" fill="#24513b" />
+        <path d="M0,880 Q520,790 1100,860 T1920,830 L1920,1080 L0,1080 Z" fill="#163325" />
+      </svg>
+
       <div
         style={{
           position: "absolute",
-          bottom: -50,
+          bottom: 120,
+          width: "100%",
           display: "flex",
-          gap: 20,
-          filter: "drop-shadow(0 15px 25px rgba(0,0,0,0.4))",
+          justifyContent: "space-around",
+          filter: "drop-shadow(0 15px 12px rgba(0,0,0,0.5))",
+          transform: `translate(${jitter.x}px, ${jitter.y}px)`,
         }}
       >
-        {[300, 420, 360, 480, 320, 400].map((h, i) => (
-          <div
-            key={i}
-            style={{
-              width: 140,
-              height: h,
-              backgroundColor: i % 2 === 0 ? "#2d6a4f" : "#40916c",
-              borderTopLeftRadius: "50%",
-              borderTopRightRadius: "50%",
-            }}
-          />
+        {[420, 500, 460, 540, 430, 490].map((h, i) => (
+          <svg key={i} width="160" height={h} viewBox="0 0 100 200">
+            <polygon points="50,10 90,80 65,80 95,140 20,140" fill={i % 2 === 0 ? "#2d6a4f" : "#40916c"} />
+            <polygon points="50,10 10,80 35,80 5,140 50,140" fill={i % 2 === 0 ? "#1e4d38" : "#2d6a4f"} />
+            <rect x="42" y="140" width="16" height="60" fill="#582f0e" />
+          </svg>
         ))}
       </div>
 
-      {/* Titik Api Awal */}
-      {frame >= 50 && (
+      {frame >= 40 && (
         <div
           style={{
             position: "absolute",
-            bottom: 120,
-            transform: `scale(${fireGrowth})`,
-            display: "flex",
-            gap: 15,
+            bottom: 140,
+            left: "48%",
+            transform: `scale(${fireScale}) rotate(${jitter.rot * 2}deg)`,
+            filter: "drop-shadow(0 0 35px #ff5400)",
           }}
         >
-          <div
-            style={{
-              width: 70,
-              height: 110,
-              backgroundColor: "#ff6b35",
-              borderRadius: "50% 50% 20% 20%",
-              transform: "rotate(-10deg)",
-              boxShadow: "0 0 35px #ff4800",
-            }}
-          />
-          <div
-            style={{
-              width: 90,
-              height: 140,
-              backgroundColor: "#f7a072",
-              borderRadius: "50% 50% 20% 20%",
-              transform: "rotate(10deg)",
-              boxShadow: "0 0 40px #ff7b00",
-            }}
-          />
+          <svg width="220" height="260" viewBox="0 0 100 120">
+            <path d="M50,5 Q75,45 85,75 Q95,110 50,115 Q5,110 15,75 Q25,45 50,5 Z" fill="#ff4800" />
+            <path d="M50,30 Q65,60 70,80 Q75,105 50,110 Q25,105 30,80 Q35,60 50,30 Z" fill="#ffb703" />
+          </svg>
         </div>
       )}
 
-      {/* Teks Informasi */}
-      <PaperCard
-        style={{
-          position: "relative",
-          zIndex: 10,
-          backgroundColor: "#fefae0",
-          padding: "36px 64px",
-          textAlign: "center",
-          transform: `scale(${scale})`,
-        }}
-      >
-        <div style={{ fontSize: 32, color: "#283618", fontWeight: 700, letterSpacing: 2 }}>
-          INDONESIA
+      <div style={{ position: "absolute", top: "12%", width: "100%", display: "flex", justifyContent: "center" }}>
+        <div
+          style={{
+            backgroundColor: "#f4f1de",
+            padding: "24px 60px",
+            border: "4px solid #3d405b",
+            boxShadow: "14px 14px 0px rgba(0,0,0,0.6)",
+            transform: `scale(${scale}) rotate(${jitter.rot}deg)`,
+            textAlign: "center",
+          }}
+        >
+          <div style={{ fontSize: 30, color: "#e63946", letterSpacing: 3, fontWeight: 900 }}>INDONESIA BERDUKA</div>
+          <div style={{ fontSize: 62, color: "#1d3557", marginTop: 4 }}>HUTAN TROPIS TERBAKAR</div>
         </div>
-        <div style={{ fontSize: 68, color: "#bc6c25", fontWeight: 900 }}>
-          HUTAN TROPIS KITA TERANCAM
-        </div>
-      </PaperCard>
+      </div>
     </AbsoluteFill>
   );
 };
 
-// SCENE 2: Api Meluas & Asap Tebal (Detik 4 - 8 | Frame 120 - 240)
+// Scene 2: Detik 4 - 8 (Api Meluas)
 const Scene2 = () => {
   const frame = useCurrentFrame();
-  const smokeOpacity = interpolate(frame, [0, 80], [0.2, 0.85]);
+  const jitter = useJitter(frame);
+  const smokeMove = interpolate(frame, [0, 120], [100, -50]);
 
   return (
     <AbsoluteFill
       style={{
-        backgroundColor: "#b02a37",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontFamily: "'Trebuchet MS', sans-serif",
+        backgroundColor: "#6a040f",
+        overflow: "hidden",
+        fontFamily: "'Impact', 'Arial Black', sans-serif",
       }}
     >
-      {/* Kobaran Api Besar */}
+      <IndonesianVoice text="Darurat karhutla, api meluas membakar ribuan hektar lahan." />
+
       <div
         style={{
           position: "absolute",
           bottom: 0,
           width: "100%",
           display: "flex",
-          justifyContent: "space-around",
-          filter: "drop-shadow(0 -10px 30px #ff6b35)",
+          justifyContent: "space-between",
+          filter: "drop-shadow(0 -15px 30px #d00000)",
+          transform: `translate(${jitter.x * 2}px, 0)`,
         }}
       >
-        {[500, 650, 580, 700, 620].map((h, i) => (
-          <div
-            key={i}
-            style={{
-              width: 240,
-              height: h,
-              backgroundColor: i % 2 === 0 ? "#dc2f02" : "#f48c06",
-              borderRadius: "60% 40% 10% 10%",
-              transform: `rotate(${i % 2 === 0 ? -8 : 8}deg)`,
-            }}
-          />
+        {[1, 2, 3, 4, 5].map((item) => (
+          <svg key={item} width="400" height="650" viewBox="0 0 100 150">
+            <polygon points="50,0 90,90 75,90 100,150 0,150 25,90 10,90" fill="#dc2f02" />
+            <polygon points="50,25 80,95 65,95 85,145 15,145 35,95 20,95" fill="#f48c06" />
+          </svg>
         ))}
       </div>
 
-      {/* Layer Asap Tebal */}
-      <AbsoluteFill
+      <div
         style={{
-          backgroundColor: "#343a40",
-          opacity: smokeOpacity,
-        }}
-      />
-
-      <PaperCard
-        style={{
-          position: "relative",
-          zIndex: 10,
-          backgroundColor: "#212529",
-          border: "4px solid #f48c06",
-          padding: "36px 60px",
-          textAlign: "center",
+          position: "absolute",
+          top: smokeMove,
+          width: "120%",
+          left: "-10%",
+          opacity: 0.85,
         }}
       >
-        <div style={{ fontSize: 34, color: "#f8f9fa", fontWeight: 700 }}>
-          API MELUAS CEPAT
+        <svg viewBox="0 0 1000 350">
+          <circle cx="150" cy="200" r="140" fill="#343a40" />
+          <circle cx="350" cy="160" r="160" fill="#495057" />
+          <circle cx="580" cy="180" r="150" fill="#212529" />
+          <circle cx="820" cy="150" r="170" fill="#343a40" />
+        </svg>
+      </div>
+
+      <div style={{ position: "absolute", top: "40%", width: "100%", display: "flex", justifyContent: "center" }}>
+        <div
+          style={{
+            backgroundColor: "#212529",
+            color: "#ffb703",
+            padding: "30px 60px",
+            border: "5px solid #d00000",
+            boxShadow: "14px 14px 0px #000",
+            transform: `rotate(${jitter.rot}deg)`,
+            textAlign: "center",
+          }}
+        >
+          <div style={{ fontSize: 36, color: "#fff" }}>DARURAT KARHUTLA</div>
+          <div style={{ fontSize: 68, color: "#e85d04" }}>API MELUAS TANPA KENDALI</div>
         </div>
-        <div style={{ fontSize: 62, color: "#faa307", fontWeight: 900, marginTop: 10 }}>
-          RIBUAN HEKTAR LAHAN TERBAKAR
-        </div>
-      </PaperCard>
+      </div>
     </AbsoluteFill>
   );
 };
 
-// SCENE 3: Dampak Kualitas Udara & Permukiman (Detik 8 - 12 | Frame 240 - 360)
+// Scene 3: Detik 8 - 12 (Kabut Asap & Bahaya Udara)
 const Scene3 = () => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-
-  const pop = spring({ frame, fps, config: { damping: 10 } });
+  const jitter = useJitter(frame);
 
   return (
     <AbsoluteFill
       style={{
-        backgroundColor: "#495057",
+        backgroundColor: "#2b2d42",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        fontFamily: "'Trebuchet MS', sans-serif",
+        fontFamily: "'Impact', 'Arial Black', sans-serif",
       }}
     >
-      {/* Siluet Rumah Kertas Tertutup Kabut Asap */}
+      <IndonesianVoice text="Kabut asap pekat menyelimuti permukiman, kualitas udara sangat berbahaya." />
+
       <div
         style={{
-          position: "absolute",
-          bottom: 60,
-          display: "flex",
-          gap: 60,
-          opacity: 0.35,
-        }}
-      >
-        {[240, 320, 260].map((w, i) => (
-          <div
-            key={i}
-            style={{
-              width: w,
-              height: 200,
-              backgroundColor: "#212529",
-              borderRadius: "12px 12px 0 0",
-            }}
-          />
-        ))}
-      </div>
-
-      <PaperCard
-        style={{
-          position: "relative",
-          zIndex: 10,
-          backgroundColor: "#f8f9fa",
+          backgroundColor: "#fff",
           padding: "40px 70px",
+          border: "6px solid #d90429",
+          boxShadow: "16px 16px 0px rgba(0,0,0,0.7)",
+          transform: `scale(1.05) rotate(${jitter.rot}deg)`,
           textAlign: "center",
-          transform: `scale(${interpolate(pop, [0, 1], [0.8, 1])})`,
+          zIndex: 10,
         }}
       >
-        <div style={{ fontSize: 30, color: "#c92a2a", fontWeight: 800 }}>
-          KUALITAS UDARA BERBAHAYA
+        <div style={{ fontSize: 34, color: "#d90429", letterSpacing: 2 }}>KONDISI UDARA BERBAHAYA</div>
+        <div style={{ fontSize: 66, color: "#2b2d42", marginTop: 8 }}>KABUT ASAP PEKAT</div>
+        <div style={{ fontSize: 28, color: "#6c757d", marginTop: 12 }}>
+          Masyarakat Terancam ISPA & Aktivitas Lumpuh
         </div>
-        <div style={{ fontSize: 64, color: "#212529", fontWeight: 900, marginTop: 8 }}>
-          KABUT ASAP MENYELIMUTI KOTA
-        </div>
-        <div style={{ fontSize: 26, color: "#6c757d", fontWeight: 600, marginTop: 14 }}>
-          Jutaan Warga Terancam Penyakit ISPA
-        </div>
-      </PaperCard>
+      </div>
     </AbsoluteFill>
   );
 };
 
-// SCENE 4: Kerusakan Habitat & Tanah Menghitam (Detik 12 - 16 | Frame 360 - 480)
+// Scene 4: Detik 12 - 16 (Habitat Hancur)
 const Scene4 = () => {
   const frame = useCurrentFrame();
+  const jitter = useJitter(frame);
 
   return (
     <AbsoluteFill
       style={{
-        backgroundColor: "#1a1a1a",
+        backgroundColor: "#1c1917",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        fontFamily: "'Trebuchet MS', sans-serif",
+        fontFamily: "'Impact', 'Arial Black', sans-serif",
       }}
     >
-      {/* Pohon Gersang Kertas */}
+      <IndonesianVoice text="Ekosistem hancur, ribuan satwa kehilangan rumah tinggal mereka." />
+
       <div
         style={{
-          position: "absolute",
-          bottom: 0,
-          width: "100%",
-          display: "flex",
-          justifyContent: "space-around",
-        }}
-      >
-        {[30, 45, 35, 50].map((w, i) => (
-          <div
-            key={i}
-            style={{
-              width: w,
-              height: 380,
-              backgroundColor: "#2b2b2b",
-              borderRadius: 6,
-            }}
-          />
-        ))}
-      </div>
-
-      <PaperCard
-        style={{
-          position: "relative",
+          backgroundColor: "#292524",
+          color: "#fff",
+          padding: "36px 60px",
+          borderLeft: "14px solid #ef4444",
+          boxShadow: "14px 14px 0px #000",
+          transform: `rotate(${jitter.rot}deg)`,
           zIndex: 10,
-          backgroundColor: "#2d2d2d",
-          borderLeft: "10px solid #e03131",
-          padding: "36px 54px",
-          textAlign: "left",
         }}
       >
-        <div style={{ fontSize: 28, color: "#adb5bd", fontWeight: 700 }}>
-          KERUSAKAN EKOSISTEM
-        </div>
-        <div style={{ fontSize: 58, color: "#f1f3f5", fontWeight: 900, marginTop: 8 }}>
-          SATWA KEHILANGAN RUMAH
-        </div>
-        <div style={{ fontSize: 26, color: "#ff8787", fontWeight: 700, marginTop: 10 }}>
-          Lahan Gambut Butuh Puluhan Tahun Memulih
-        </div>
-      </PaperCard>
+        <div style={{ fontSize: 32, color: "#f87171" }}>KERUSAKAN LINGKUNGAN</div>
+        <div style={{ fontSize: 62, color: "#f5f5f4", marginTop: 6 }}>HABITAT SATWA MUSNAH</div>
+        <div style={{ fontSize: 26, color: "#a8a29e", marginTop: 10 }}>Tanah Menghitam & Butuh Puluhan Tahun Pulih</div>
+      </div>
     </AbsoluteFill>
   );
 };
 
-// SCENE 5: Harapan & Penanaman Kembali (Detik 16 - 20 | Frame 480 - 600)
+// Scene 5: Detik 16 - 20 (Harapan & Cegah Karhutla)
 const Scene5 = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-
-  const plantSpring = spring({ frame, fps, config: { damping: 10 } });
-  const plantScale = interpolate(plantSpring, [0, 1], [0.2, 1.1]);
+  const jitter = useJitter(frame);
+  const grow = spring({ frame, fps, config: { damping: 9 } });
+  const scale = interpolate(grow, [0, 1], [0.3, 1.2]);
 
   return (
     <AbsoluteFill
       style={{
-        backgroundColor: "#2d6a4f",
+        backgroundColor: "#283618",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        fontFamily: "'Trebuchet MS', sans-serif",
+        fontFamily: "'Impact', 'Arial Black', sans-serif",
       }}
     >
-      {/* Simbol Bibit Pohon Kertas Tumbuh */}
+      <IndonesianVoice text="Karhutla mengancam kita semua. Mari cegah sebelum terlambat!" />
+
       <div
         style={{
           position: "absolute",
-          top: 180,
-          transform: `scale(${plantScale})`,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
+          top: "16%",
+          transform: `scale(${scale}) rotate(${jitter.rot}deg)`,
+          filter: "drop-shadow(0 15px 20px rgba(0,0,0,0.5))",
         }}
       >
-        <div
-          style={{
-            width: 80,
-            height: 110,
-            backgroundColor: "#74c69d",
-            borderRadius: "50% 50% 10% 10%",
-            boxShadow: "0 10px 20px rgba(0,0,0,0.3)",
-          }}
-        />
-        <div style={{ width: 14, height: 80, backgroundColor: "#52b788" }} />
+        <svg width="220" height="240" viewBox="0 0 100 100">
+          <path d="M50,90 Q48,50 50,30" stroke="#606c38" strokeWidth="6" fill="none" />
+          <path d="M50,45 Q75,30 70,55 Q50,60 50,45 Z" fill="#dda15e" />
+          <path d="M50,35 Q25,20 30,45 Q50,50 50,35 Z" fill="#bc6c25" />
+          <circle cx="50" cy="24" r="14" fill="#dda15e" />
+        </svg>
       </div>
 
-      {/* Slogan Penutup */}
-      <PaperCard
+      <div
         style={{
-          position: "relative",
-          zIndex: 10,
           backgroundColor: "#fefae0",
-          padding: "44px 72px",
+          padding: "44px 70px",
+          border: "5px solid #606c38",
+          boxShadow: "16px 16px 0px rgba(0,0,0,0.6)",
           textAlign: "center",
-          marginTop: 260,
+          marginTop: 220,
+          transform: `rotate(${jitter.rot}deg)`,
         }}
       >
-        <div style={{ fontSize: 54, color: "#1b4332", fontWeight: 900, lineHeight: 1.2 }}>
+        <div style={{ fontSize: 56, color: "#283618", lineHeight: 1.2 }}>
           KARHUTLA MENGANCAM KITA SEMUA
         </div>
-        <div
-          style={{
-            fontSize: 40,
-            color: "#d9480f",
-            fontWeight: 900,
-            marginTop: 14,
-            letterSpacing: 1,
-          }}
-        >
+        <div style={{ fontSize: 44, color: "#bc6c25", marginTop: 14 }}>
           Cegah Sebelum Terlambat!
         </div>
-      </PaperCard>
+      </div>
     </AbsoluteFill>
   );
 };
 
-// Komponen Utama HelloWorld (Total 600 Frame / 20 Detik)
 export const HelloWorld = () => {
   return (
     <AbsoluteFill>
+      {/* Background Music Sinematik Online Otomatis */}
+      <Audio
+        src="https://actions.google.com/sounds/v1/weather/fire_burning.ogg"
+        volume={0.35}
+      />
+
       <Sequence from={0} durationInFrames={120}>
         <Scene1 />
       </Sequence>
-
       <Sequence from={120} durationInFrames={120}>
         <Scene2 />
       </Sequence>
-
       <Sequence from={240} durationInFrames={120}>
         <Scene3 />
       </Sequence>
-
       <Sequence from={360} durationInFrames={120}>
         <Scene4 />
       </Sequence>
-
       <Sequence from={480} durationInFrames={120}>
         <Scene5 />
       </Sequence>
