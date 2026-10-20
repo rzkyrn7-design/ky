@@ -1,7 +1,7 @@
 import { Composition } from "remotion";
 import { HelloWorld } from "./HelloWorld";
 
-export const Root = () => {
+export const RemotionRoot = () => {
   return (
     <Composition
       id="HelloWorld"
@@ -13,3 +13,6 @@ export const Root = () => {
     />
   );
 };
+
+// Buat jaga-jaga kalau ada file lain yang manggil Root
+export const Root = RemotionRoot;
